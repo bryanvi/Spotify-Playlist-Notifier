@@ -1,1 +1,1 @@
-# spotify-playlists
+# spotify-playlist-updater
