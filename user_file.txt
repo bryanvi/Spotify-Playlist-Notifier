@@ -1,0 +1,22 @@
+
+# Welcome to the Spotify Playlist Updater. Get notified when new songs are added to the playlists you follow.
+
+# Enter information in the following format (unlimited number of users / playlists):
+
+# email: user1@gmail.com
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 1)
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 2)
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 3)
+
+#email: user2@gmail.com
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 1)
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 2)
+# spotify:playlist:xxxxxxxxxxxxxxxxxxxx (playlist 3)
+
+-----------------Enter data below---------------------------
+
+
+email: vibryan99@gmail.com
+spotify:playlist:1IWiYkv8hQW2nR0qIXGqeX ("cart" by bryanvi)
+spotify:playlist:2KYmGoxXzycwdbQXRy3I0v (arabic playlist)
+spotify:playlist:36z6cVMF326eqGj9694foq ("Super Rich Kids - Frank Ocean" by bryanvi)
