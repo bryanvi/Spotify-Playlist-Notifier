@@ -17,6 +17,9 @@ redirect_uri = os.getenv('REDIRECT_URI')
 admin_email = os.getenv('ADMIN_EMAIL')
 admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD)
 
+
+scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
+
 token = util.prompt_for_user_token(username=username, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
 
 #instantiate spotify API token

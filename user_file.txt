@@ -16,13 +16,3 @@
 -----------------Enter data below---------------------------
 
 
-email: vibryan99@gmail.com
-spotify:playlist:1IWiYkv8hQW2nR0qIXGqeX ("cart" by bryanvi)
-spotify:playlist:2KYmGoxXzycwdbQXRy3I0v (arabic playlist)
-spotify:playlist:36z6cVMF326eqGj9694foq ("Super Rich Kids - Frank Ocean" by bryanvi)
-
-# email: ccaidand@gmail.com
-# spotify:playlist:4Yxwxk2e7yLBHpwPBIApvL
-
-email: odh.joseph@gmail.com
-spotify:playlist:2dApvWJBmdV2D2OMON9LSx
