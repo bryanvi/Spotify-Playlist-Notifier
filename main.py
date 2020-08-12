@@ -15,7 +15,7 @@ client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
 admin_email = os.getenv('ADMIN_EMAIL')
-admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD)
+admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD')
 
 
 scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
@@ -233,8 +233,11 @@ def sendEmail(user_email, message):
         
         server.login(sender_email, password)        # login to email
 
-        server.sendmail(sender_email, receiver_email, message.encode('utf-8'))      #send email with utf-8 encodeding to account for speical charecters / emojis
-        print("sent email", file=sys.stderr)
+        try:
+            server.sendmail(sender_email, receiver_email, message.encode('utf-8'))      #send email with utf-8 encodeding to account for speical charecters / emojis
+            print("sent email", file=sys.stderr)
+        except: 
+            print('email failed to send')
 
 
 
