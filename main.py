@@ -196,9 +196,9 @@ def sendEmail(user_email, message):
     
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
-    sender_email = "spotifyplaylistupdater@gmail.com"  # Enter your address
+    sender_email = ADMIN_EMAIL  # Enter your address
     receiver_email = user_email  # Enter receiver address
-    password = "thierryHenry14#"
+    password = ADMIN_EMAIL_PASSWORD
     
     context = ssl.create_default_context()
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
