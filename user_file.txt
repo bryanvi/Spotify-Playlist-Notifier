@@ -15,10 +15,3 @@
 
 -----------------Enter data below---------------------------
 
-
-email: vibryan99@gmail.com
-spotify:playlist:37i9dQZF1DWWBHeXOYZf74
-spotify:playlist:41lgwDH9GcmnOK01guUzrI
-spotify:playlist:6j61JHeZnYs46hJgRah7gl
-spotify:playlist:2VxbX3uUMjB6u5hpIiD4W5
-spotify:playlist:4Sb85v5WwBb2oYxHNORPpm
