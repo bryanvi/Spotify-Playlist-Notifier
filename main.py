@@ -15,7 +15,7 @@ client_id = os.getenv('CLIENT_ID')
 client_secret = os.getenv('CLIENT_SECRET')
 redirect_uri = os.getenv('REDIRECT_URI')
 admin_email = os.getenv('ADMIN_EMAIL')
-admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD)
+admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD')
 
 
 scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
