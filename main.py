@@ -10,21 +10,27 @@ from json.decoder import JSONDecodeError
 
 # TODO: set environment variables USERNAME, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, ADMIN_EMAIL, ADMIN_EMAIL_PASSWORD
 
-# username = os.getenv('USERNAME')
-# client_id = os.getenv('CLIENT_ID')
-# client_secret = os.getenv('CLIENT_SECRET')
-# redirect_uri = os.getenv('REDIRECT_URI')
-# admin_email = os.getenv('ADMIN_EMAIL')
-# admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD)
+username = os.getenv('USERNAME')
+client_id = os.getenv('CLIENT_ID')
+client_secret = os.getenv('CLIENT_SECRET')
+redirect_uri = os.getenv('REDIRECT_URI')
+admin_email = os.getenv('ADMIN_EMAIL')
+admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD)
 
-username = 'bryanvi'
-client_id = '3e23d0e194824d46aa6a3a8a821ea72f'
-client_secret = '61703860a06941d588248515ecad9452'
-redirect_uri = 'http://localhost:8080/'
+
 scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
 
 token = util.prompt_for_user_token(username=username, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
 sp = spotipy.Spotify(token)
+
+files_used = []
+
+def cleanDirectory(files_used):
+    directory = 'C:/Users/bryan/Documents/vscode projects/spotify_development'
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            if filename not in files_used and filename != 'user_file.txt':
+                os.remove(directory + '/' + filename)
 
 
 def readFile():
@@ -75,18 +81,22 @@ def updatePlaylists(uri_list):
             
             try:
                 last_update = open(name + ' (last_update).txt', 'r', encoding='utf-8')
-                for song in last_update:
-                    if '\n' in song:
-                        old_set.add(song[0:-1])
+                files_used.append(last_update.name)
+                for track in last_update:
+                    if '\n' in track:
+                        old_set.add(track[0:-1])
                     else:
-                        old_set.add(song)
+                        old_set.add(track)
                 last_update.close()
                 
                 current = open(name + ' (current).txt', 'w', encoding='utf-8')
+                files_used.append(current.name)
                 for song in playlist_items['items']:      # for song in list
                     track = song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name']  #type str (ex. Super Rich Kids by Frank Ocean)
-                    
-                    new_set.add(track)
+                    if '\n' in track:
+                        new_set.add(track[0:-1])
+                    else:
+                        new_set.add(track)
                     
                     current.write(track)
                     current.write('\n')
@@ -94,41 +104,44 @@ def updatePlaylists(uri_list):
 
                 new_songs = []
                 deleted_songs = []
-             
-                for song in (new_set - old_set):
+
+                to_add = new_set - old_set
+                for song in to_add:
                     new_songs.append(song)
                 new_songs.sort(reverse=True, key=str.casefold)
 
-                for song in (old_set - new_set):
+                to_remove = old_set - new_set
+                for song in to_remove:
                     deleted_songs.append(song)
                 deleted_songs.sort(reverse=True, key=str.casefold)
 
 
                 last_update = open(name + ' (last_update).txt', 'w', encoding='utf-8')
-                for song in playlist_items['items']:      # for song in list
-                    last_update.write(song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name'])
-                    last_update.write('\n')
+                current = open(name + ' (current).txt', 'r', encoding='utf-8')
+                for song in current:      # for song in list
+                    last_update.write(song)
                 last_update.close()
-                
+
                 update_dict[name] = {'new_songs': new_songs, 'deleted_songs': deleted_songs}
+
 
             except FileNotFoundError:                       # new playlist, so create and update both playlist files and do nothing
                 
                 last_update = open(name + ' (last_update).txt', 'w', encoding='utf-8')
-                for song in playlist_items['items']:      # for song in list
-                    last_update.write(song['track']['name'] + '  -  ' + song['track']['artists'][0]['name'])
-                    last_update.write('\n')
-                last_update.close()
-
                 current = open(name + ' (current).txt', 'w', encoding='utf-8')
+                files_used.append(last_update.name)
+                files_used.append(current.name)
                 for song in playlist_items['items']:      # for song in list
-                    current.write(song['track']['name'] + '  -  ' + song['track']['artists'][0]['name'])
+                    last_update.write(song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name'])
+                    last_update.write('\n')
+                    current.write(song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name'])
                     current.write('\n')
+
+                last_update.close()
                 current.close()
 
                 print('new files were created for {}'.format(name), file=sys.stderr)
-
-                return 
+                update_dict[name] = {'new_songs': '(new playlist)', 'deleted_songs': '(new playlist)'}
 
         return update_dict
     
@@ -144,12 +157,13 @@ def user_message(update_dict, uri_list):
     message = "Subject: Here's your update for this week.\n\n\n"
 
     for name in playlist_names:
+        message += '[ Update for ' + name + ': ]\n\n'
+        if update_dict[name]['new_songs'] == '(new playlist)':
+            message += ('     Playlist has been added to the Updater! You will now get updates for this playlist.\n\n\n')
+            continue
         new_songs = update_dict[name]['new_songs']
         deleted_songs = update_dict[name]['deleted_songs']
 
-
-        message += '[ Update for ' + name + ': ]\n\n'
-        
         if new_songs:
             message += '+++++Songs Added+++++\n\n'
     
@@ -203,10 +217,13 @@ def main():
         update_dict = updatePlaylists(uri_list)
         print(update_dict)
         print()
+        
         message = user_message(update_dict, uri_list)
-
+        print(message)
         sendEmail(user_email, message)
+        print(files_used)
 
+    cleanDirectory(files_used)
 
         
 
