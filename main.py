@@ -8,22 +8,32 @@ import webbrowser
 import spotipy.util as util
 from json.decoder import JSONDecodeError
 
-# set environment variables USERNAME, CLIENT_ID, CLIENT_SECRET, REDIRECT_URI, ADMIN_EMAIL, ADMIN_EMAIL_PASSWORD
+from cred import getCredentials
 
-username = os.getenv('USERNAME')
-client_id = os.getenv('CLIENT_ID')
-client_secret = os.getenv('CLIENT_SECRET')
-redirect_uri = os.getenv('REDIRECT_URI')
-admin_email = os.getenv('ADMIN_EMAIL')
-admin_email_password = os.getenv('ADMIN_EMAIL_PASSWORD')
+# create another file called "cred.py" and paste in this function, and fill in the appropriate credntials for the API and sender email
 
+# def getCredentials(username, client_id, client_secret, redirect_uri, admin_email, admin_email_password):
+#     username = YOUR_USERNMAE
+#     client_id = YOUR_CLIENT_ID
+#     client_secret = YOUR CLIENT_SECRET
+#     redirect_uri = YOUR_REDIRECT_URI
+#     admin_email = YOUR_ADMIN_EMAIL           #email you want to send the updates from
+#     admin_email_password = YOUR_ADMIN_EMAIL_PASSWORD
+#     return username, client_id, client_secret, redirect_uri, admin_email, admin_email_password
+username=''
+client_id=''
+client_secret=''
+redirect_uri=''
+admin_email=''
+admin_email_password=''
+
+username, client_id, client_secret, redirect_uri, admin_email, admin_email_password = getCredentials(username, client_id, client_secret, redirect_uri, admin_email, admin_email_password)
 
 scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
 
 token = util.prompt_for_user_token(username=username, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
-
-#instantiate spotify API token
 sp = spotipy.Spotify(token)
+
 
 files_used = []
 def cleanDirectory(files_used):
@@ -67,6 +77,28 @@ def readFile(file):
     return user_dict
 
 
+
+def getAllTracks(sp, playlist_id, all_tracks):
+    '''
+    Get all tracks from playlist
+
+    '''
+
+    playlist_items = sp.playlist_tracks(playlist_id)
+    raw_tracks = playlist_items['items']
+    while playlist_items['next']:
+        playlist_items = sp.next(playlist_items)
+        raw_tracks.extend(playlist_items['items'])
+    
+    for song in raw_tracks:      # for song in playlist, add songs in current plalist to new_set
+        track = song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name']  #type str (ex. Super Rich Kids by Frank Ocean)
+        all_tracks.append(track)
+
+
+    return all_tracks
+
+
+
 def updatePlaylists(uri_list):
     '''
     Read throught the user's playlist uris. If the playlist uri was recently added to the list of
@@ -82,8 +114,7 @@ def updatePlaylists(uri_list):
 
         
         for index in range(0, len(uri_list)):
-            # for each playlist, use current uri to get playlist name
-            playlist_items = sp.playlist_tracks(uri_list[index], fields='items', limit=100)
+            # for each playlist, use current uri to get playlist name            
             name = sp.playlist(uri_list[index])['name']
             
             # create sets to compare later on
@@ -104,12 +135,12 @@ def updatePlaylists(uri_list):
                 
                 current = open(name + ' (current).txt', 'w', encoding='utf-8')
                 files_used.append(current.name)
-                for song in playlist_items['items']:      # for song in playlist, add songs in current plalist to new_set
-                    track = song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name']  #type str (ex. Super Rich Kids by Frank Ocean)
-                    if '\n' in track:
-                        new_set.add(track[0:-1])
-                    else:
-                        new_set.add(track)
+
+                all_tracks = []
+                all_tracks = getAllTracks(sp, uri_list[index], all_tracks)
+
+                for track in all_tracks:      # for song in playlist, add songs in current plalist to new_set
+                    new_set.add(track)
                     
                     current.write(track)        # update text file of songs in current playlist
                     current.write('\n')
@@ -148,12 +179,14 @@ def updatePlaylists(uri_list):
                 files_used.append(last_update.name)     #files are being user, so don't delete
                 files_used.append(current.name)
 
-                for song in playlist_items['items']:      # for song in list
+                all_tracks = []
+                all_tracks = getAllTracks(sp, uri_list[index], all_tracks)
+                for track in all_tracks:      # for song in list
 
                     # create two files of all songs in playlist to compare for next update
-                    last_update.write(song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name'])
+                    last_update.write(track)
                     last_update.write('\n')
-                    current.write(song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name'])
+                    current.write(track)
                     current.write('\n')
 
                 last_update.close()
