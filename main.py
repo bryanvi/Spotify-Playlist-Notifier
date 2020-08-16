@@ -10,7 +10,7 @@ from json.decoder import JSONDecodeError
 
 from cred import getCredentials
 
-# create another file called "cred.py" and paste in this function, and fill in the appropriate credntials for the API and sender email
+# create another file in current directory called "cred.py" and paste in this function, and fill in the appropriate credentials for the API and sender email
 
 # def getCredentials(username, client_id, client_secret, redirect_uri, admin_email, admin_email_password):
 #     username = YOUR_USERNMAE
@@ -26,31 +26,18 @@ client_secret=''
 redirect_uri=''
 admin_email=''
 admin_email_password=''
-
 username, client_id, client_secret, redirect_uri, admin_email, admin_email_password = getCredentials(username, client_id, client_secret, redirect_uri, admin_email, admin_email_password)
 
 scope = 'playlist-modify-private playlist-modify-public user-follow-read ugc-image-upload'
 
 token = util.prompt_for_user_token(username=username, scope=scope, client_id=client_id, client_secret=client_secret, redirect_uri=redirect_uri)
-sp = spotipy.Spotify(token)
 
+sp = spotipy.Spotify(token)         #declare spotipy token as a global variable
 
 files_used = []
-def cleanDirectory(files_used):
-    '''
-    Delete unused text files in directory
-
-    parameters: list of files used
-    return: None
-    '''
-    directory = 'C:/Users/bryan/Documents/vscode projects/spotify_development'
-    for filename in os.listdir(directory):
-        if filename.endswith(".txt"):
-            if filename not in files_used and filename != 'user_file.txt':
-                os.remove(directory + '/' + filename)
 
 
-def readFile(file):
+def readFile(user_file):
     '''
     Opens user_file.txt and returns list of plahylist URIs
 
@@ -62,8 +49,8 @@ def readFile(file):
     user = ''
 
     # iterate through user_file.txt and assign a list value of all uris to each user 
-    for line in file:
-        if line[0] == '#':
+    for line in user_file:
+        if line[0] == '#':          # ignore lines with # as the first character in the line
             continue
 
         if 'email:' in line:
@@ -77,26 +64,29 @@ def readFile(file):
     return user_dict
 
 
-
 def getAllTracks(sp, playlist_id, all_tracks):
     '''
     Get all tracks from playlist
 
-    '''
+    Parameters: sp - spotify API token, playlist_ID - URI of playlist, all_tracks - empty list to populate with playlist tracks
 
+    Return: all_tracks - list of properly formatted tracks from playlist
+    '''
+    # get unformatted playlist tracks
     playlist_items = sp.playlist_tracks(playlist_id)
     raw_tracks = playlist_items['items']
+
+    # get tracks past 100-track limit
     while playlist_items['next']:
         playlist_items = sp.next(playlist_items)
         raw_tracks.extend(playlist_items['items'])
     
+    # format tracks and add them to the list to return
     for song in raw_tracks:      # for song in playlist, add songs in current plalist to new_set
         track = song['track']['name'] + '  ―  ' + song['track']['artists'][0]['name']  #type str (ex. Super Rich Kids by Frank Ocean)
         all_tracks.append(track)
 
-
     return all_tracks
-
 
 
 def updatePlaylists(uri_list):
@@ -105,14 +95,14 @@ def updatePlaylists(uri_list):
     playlists to get updated on, create two text files of the playlist tracks. If the files have already been created, 
     compare the two text files to check what songs have been added or deleted.
 
-    Paramters: a list of plalist uris
-    Return: a dictionary holding all the songs that were added since the last update and the songs that were deleted
+    Paramters: uri_list - a list of plalist uris
+
+    Return: update_dict - a dictionary holding all the songs that were added since the last update and the songs that were deleted
     '''
     if uri_list:
 
         update_dict = {}
 
-        
         for index in range(0, len(uri_list)):
             # for each playlist, use current uri to get playlist name            
             name = sp.playlist(uri_list[index])['name']
@@ -170,9 +160,7 @@ def updatePlaylists(uri_list):
 
                 update_dict[name] = {'new_songs': new_songs, 'deleted_songs': deleted_songs}        #create dictionary to return
 
-
             except FileNotFoundError:              # new playlist, so create and update both playlist files and do nothing else
-                
                 last_update = open(name + ' (last_update).txt', 'w', encoding='utf-8')
                 current = open(name + ' (current).txt', 'w', encoding='utf-8')
 
@@ -197,13 +185,13 @@ def updatePlaylists(uri_list):
         return update_dict
 
 
-
-def user_message(update_dict, uri_list):
+def userMessage(update_dict, uri_list):
     '''
     Writes neatly formatted update message to send in an email
 
-    Parameters: dictionary of playlists to update, list of uris to get playlist names
-    Return: string message to send in email
+    Parameters: update_dict - dictionary of playlists to update, uri_lits - list of uris to get playlist names
+
+    Return: message - a string message to send in email to user
     '''
     #get playlist names
     playlist_names = []
@@ -219,7 +207,6 @@ def user_message(update_dict, uri_list):
         if update_dict[name]['new_songs'] == '(new playlist)':
             message += ('     Playlist has been added to the Updater! You will now get updates for this playlist.\n\n\n')
             continue
-
 
         new_songs = update_dict[name]['new_songs']
         deleted_songs = update_dict[name]['deleted_songs']
@@ -244,7 +231,7 @@ def user_message(update_dict, uri_list):
                 deleted_songs.pop()
             
             message += '\n\n\n'
-        else:
+        else:             # if no songs have been deleted, tell user
             message += '~ No songs were deleted. ~\n\n\n'
             
         message += '\n'
@@ -253,13 +240,18 @@ def user_message(update_dict, uri_list):
 
 
 def sendEmail(user_email, message):
+    '''
+    Send user the message composed in userMessage() via their email from the admin email
+
+    Parameters: user_email - email to send update to, message - message composed in userMessage()
     
+    Return: None
+    '''
     port = 465  # For SSL
     smtp_server = "smtp.gmail.com"
     sender_email = admin_email  # Enter your address
     receiver_email = user_email  # Enter receiver address
     password = admin_email_password
-
     
     context = ssl.create_default_context()      #encrypt message
     with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
@@ -273,26 +265,39 @@ def sendEmail(user_email, message):
             print('email failed to send')
 
 
+def cleanDirectory(files_used):
+    '''
+    Delete unused text files in directory
+
+    Parameters: files_used - list of files used
+
+    Return: None
+    '''
+    directory = 'C:/Users/bryan/Documents/vscode projects/spotify_development'
+    for filename in os.listdir(directory):
+        if filename.endswith(".txt"):
+            if filename not in files_used and filename != 'user_file.txt':
+                os.remove(directory + '/' + filename)
 
 def main():
-
-    file = open(r'user_file.txt')
-    user_dict = readFile(file)          # get users and the playlists they want to be updates on
+    user_file = open(r'user_file.txt')
+    user_dict = readFile(user_file)          # get users and the playlists they want to be updates on
     
-    for user_email, uri_list in user_dict.items():
-        print(user_email)
-        update_dict = updatePlaylists(uri_list)
-        print(update_dict)
-        print()
-        
-        message = user_message(update_dict, uri_list)
-        print(message)
-        sendEmail(user_email, message)
-        print(files_used)
+    if user_dict:                           # if data has been entered, execute functions to generate an update and send an email
+        for user_email, uri_list in user_dict.items():
+            print("Checking playlists for user: " + user_email + "...", file=sys.stderr)
+            update_dict = updatePlaylists(uri_list)
+
+            print("Composing message...", file=sys.stderr)
+            message = userMessage(update_dict, uri_list)
+            print("Message to send in email:\n", file=sys.stderr)
+            print(message)
+            sendEmail(user_email, message)
+    else:
+        print("\nNo data was entered.\n", file=sys.stderr)
 
     cleanDirectory(files_used)
 
-        
 
 if __name__ == "__main__":
     main()
