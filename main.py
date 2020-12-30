@@ -50,7 +50,7 @@ c = conn.cursor()               # initialize cursor
 
 def readFile(user_file):
     '''
-    Opens user_file.txt and returns list of plahylist URIs
+    Reads user data from user_file.txt
 
     Parameters: IO TextWrapper file 'user.txt'
     Return: dictionary { playlist ID : [users who follow that playlist] }
