@@ -102,7 +102,6 @@ def updateMainTable(mainTable_dict):
         c.execute("SELECT * FROM MainTable LIMIT 1")
 
         last_date = c.fetchone()[3]
-        # last_date = datetime.datetime.utcnow().isoformat()[:-7] + 'Z'
 
         c.execute("DROP TABLE MainTable")
         conn.commit()

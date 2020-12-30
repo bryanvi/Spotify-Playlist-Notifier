@@ -17,6 +17,15 @@
 
 # user data goes here
 
+email: vibryan99@gmail.com
+https://open.spotify.com/playlist/1IWiYkv8hQW2nR0qIXGqeX?si=bUb9c1yhQS2XxGOdkD3KbA  
+https://open.spotify.com/playlist/1BHhbjehJm1zDwCP5R5ozn?si=_j_MCR4iQB6Q3PW5CtIBWw
+
+# email: judyeffendi2@hotmail.com
+https://open.spotify.com/playlist/0I50qkQ50X4SCxrytpPBW2?si=qTvbeM4GS_iJSJhO4VRTdQ
+https://open.spotify.com/playlist/1cMihqiqney8H24LUyQbP6?si=uCHQ2WivQr6UOPsgfezizw
+https://open.spotify.com/playlist/1iZPTm3YOYuJ8MIdjLjxDY?si=CFcaXqTeSB6tIQ3rK-4aHA
+https://open.spotify.com/playlist/4A0mW6ms2XPud2vwfcrWXs?si=agSDDvF4QiaK0V4HIWooPg
 
 
 END
