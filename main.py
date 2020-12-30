@@ -168,19 +168,20 @@ def composeMessages(mainTable_dict, newTracks_dict):
     '''
     message_dict = {}
     # for each ID in the dictionary, add that playlist's update to the followers' messages
-    for playlist_id in newTracks_dict.keys():
-        user_list = mainTable_dict[playlist_id]
-        for user in user_list:              # create message header if user doesn't have a message started
-            if user not in message_dict:
-                message_dict[user] = "Subject: Here's your update for this week.\n\n"
-                message_dict[user] += "Playlists with songs added this week:\n\n\n\n"
-            
-            name = sp.playlist(playlist_id)['name']
-            added_message = 'NEW SONGS ADDED TO "{}":\n\n\n'.format(name)               
-            for song in newTracks_dict[playlist_id]:                        #append newly added songs to message
-                added_message += '     {}\n\n'.format(song)
-            added_message += "\n\n"
-            message_dict[user] += added_message
+    for playlist_id in mainTable_dict.keys():
+        if newTracks_dict[playlist_id]:
+            user_list = mainTable_dict[playlist_id]
+            for user in user_list:              # create message header if user doesn't have a message started
+                if user not in message_dict:
+                    message_dict[user] = "Subject: Here's your update for this week.\n\n"
+                    message_dict[user] += "Playlists with songs added this week:\n\n\n\n"
+                
+                name = sp.playlist(playlist_id)['name']
+                added_message = 'NEW SONGS ADDED TO "{}":\n\n\n'.format(name)               
+                for song in newTracks_dict[playlist_id]:                        #append newly added songs to message
+                    added_message += '     {}\n\n'.format(song)
+                added_message += "\n\n"
+                message_dict[user] += added_message
     
     # create a message for users who don't have any updates for the given week
     all_users = set()                   
