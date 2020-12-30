@@ -2,6 +2,3 @@ cred.py
 .cache-bryanvi
 test.py
 playlists.db
-.getignore
-__pycache__
-.vscode
