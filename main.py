@@ -162,7 +162,7 @@ def composeMessages(mainTable_dict, newTracks_dict):
     '''
     Composing and sending emails to all users
 
-    Parameters: mainTable_dict - dictionary { URL : [users] }, newTracks_dict - dictionary { URL - [new Tracks] }
+    Parameters: mainTable_dict - dictionary { URL : [users] }, newTracks_dict - dictionary { URL : [new Tracks] }
     Return: message_dict - dictionary { user : str(message) }
     '''
     message_dict = {}
