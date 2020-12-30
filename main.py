@@ -16,12 +16,12 @@ from cred import getCredentials
 # create another file in current directory called "cred.py" and paste in this function, and fill in the appropriate credentials for the API and sender email
 ############################
 # def getCredentials(username, client_id, client_secret, redirect_uri, admin_email, admin_email_password):
-#     username = YOUR_USERNMAE
-#     client_id = YOUR_CLIENT_ID
-#     client_secret = YOUR CLIENT_SECRET
-#     redirect_uri = YOUR_REDIRECT_URI
-#     admin_email = YOUR_ADMIN_EMAIL           #email you want to send the updates from
-#     admin_email_password = YOUR_ADMIN_EMAIL_PASSWORD
+#     username = username
+#     client_id = client_id
+#     client_secret = client_secret
+#     redirect_uri = redirect_uri
+#     admin_email = admin_email           #email you want to send the updates from
+#     admin_email_password = admin_email_password
 #     return username, client_id, client_secret, redirect_uri, admin_email, admin_email_password
 ################################
 
