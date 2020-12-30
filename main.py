@@ -53,7 +53,7 @@ def readFile(user_file):
     Opens user_file.txt and returns list of plahylist URIs
 
     Parameters: IO TextWrapper file 'user.txt'
-    Return: dictionary of users as keys and lists of playlist uris as respective values
+    Return: dictionary { playlist ID : [users who follow that playlist] }
     '''
     mainTable_dict = {}
 
@@ -69,7 +69,7 @@ def readFile(user_file):
             user = line.split()[1]
             line = user_file.readline()
             while line != '\n':
-                if 'https://open.spotify.com/playlist/' in line:
+                if 'https://open.spotify.com/playlist/' in line:         #string-slice playlist ID
                     start = line.rindex('/')+1
                     end = line.rindex('?')
                     playlist_id = line[start:end]
@@ -91,13 +91,15 @@ def updateMainTable(mainTable_dict):
     '''
     Update the main table that has the playlist_idS and their respective users
 
-    Parameters: mainTable_dict - dictionary { playlist playlist_id : users }
+    Parameters: mainTable_dict - dictionary { playlist ID : users }
     Return: None
     '''
+    
     c.execute("SELECT * FROM sqlite_master WHERE type='table' AND name='MainTable'")
 
     last_date = ''
-
+    
+    # get the last update date from a random row in the table and populate it with latest data from user_file.txt
     if c.fetchone()[0]:
         c.execute("SELECT * FROM MainTable LIMIT 1")
 
@@ -135,7 +137,7 @@ def getNewTracks(mainTable_dict):
         
         newTracks_dict[playlist_id] = []
 
-        playlist_items = sp.playlist_tracks(playlist_id)
+        playlist_items = sp.playlist_tracks(playlist_id)        #get tracks from API
         raw_tracks = playlist_items['items']
 
         # get tracks past 100-track limit
@@ -144,13 +146,12 @@ def getNewTracks(mainTable_dict):
             raw_tracks.extend(playlist_items['items'])
         
         c.execute("SELECT * FROM MainTable LIMIT 1")
-        last_date = c.fetchone()[3]
+        last_date = c.fetchone()[3]                 #get last date
 
         for track in raw_tracks:
             if track['track']:
-                if track['added_at'] > last_date:
-
-                    formatted_track = track['track']['name'] + '   -   ' + track['track']['artists'][0]['name']  #type str (ex. Super Rich Kids //  Frank Ocean)
+                if track['added_at'] > last_date:                   #if the track was added after the last date, add to newTracks_dict
+                    formatted_track = track['track']['name'] + '   -   ' + track['track']['artists'][0]['name']  #type str (ex. Super Rich Kids   -   Frank Ocean)
                     if track['is_local']:
                         formatted_track += " ***Locally-added track may be unavailable*** "
                     newTracks_dict[playlist_id].append(formatted_track)
@@ -166,23 +167,23 @@ def composeMessages(mainTable_dict, newTracks_dict):
     Return: message_dict - dictionary { user : str(message) }
     '''
     message_dict = {}
-
-    for playlist_id in mainTable_dict.keys():
-        if newTracks_dict[playlist_id]:
-            user_list = mainTable_dict[playlist_id]
-            for user in user_list:
-                if user not in message_dict:
-                    message_dict[user] = "Subject: Here's your update for this week.\n\n"
-                    message_dict[user] += "Playlists with songs added this week:\n\n\n\n"
-
-                name = sp.playlist(playlist_id)['name']
-                added_message = 'NEW SONGS ADDED TO "{}":\n\n\n'.format(name)
-                for song in newTracks_dict[playlist_id]:
-                    added_message += '     {}\n\n'.format(song)
-                added_message += "\n\n"
-                message_dict[user] += added_message
+    # for each ID in the dictionary, add that playlist's update to the followers' messages
+    for playlist_id in newTracks_dict.keys():
+        user_list = mainTable_dict[playlist_id]
+        for user in user_list:              # create message header if user doesn't have a message started
+            if user not in message_dict:
+                message_dict[user] = "Subject: Here's your update for this week.\n\n"
+                message_dict[user] += "Playlists with songs added this week:\n\n\n\n"
+            
+            name = sp.playlist(playlist_id)['name']
+            added_message = 'NEW SONGS ADDED TO "{}":\n\n\n'.format(name)               
+            for song in newTracks_dict[playlist_id]:                        #append newly added songs to message
+                added_message += '     {}\n\n'.format(song)
+            added_message += "\n\n"
+            message_dict[user] += added_message
     
-    all_users = set()                   # create a message for users who don't have any updates for the given week
+    # create a message for users who don't have any updates for the given week
+    all_users = set()                   
     for playlist_id in mainTable_dict.keys():
         for user in mainTable_dict[playlist_id]:
             all_users.add(user)
