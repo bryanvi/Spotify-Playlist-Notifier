@@ -228,7 +228,7 @@ def emailMessages(message_dict):
 
 
 def main():
-    if datetime.datetime.today().weekday() == 0:                # only updating on Sunday. PythonAnywhere script runs everyday and I don't know schedule a task once a week :(
+    if datetime.datetime.today().weekday() == 0:                # only updating on Sunday. PythonAnywhere script runs every day and I don't know how to schedule a task once a week :(
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user_file.txt") # look in cache_files
 
         user_file = open(path)
