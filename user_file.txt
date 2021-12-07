@@ -8,15 +8,12 @@
 # https://open.spotify.com/playlist/############################## 
 # https://open.spotify.com/playlist/##############################
 
-# email: user2@gmail.com
-# https://open.spotify.com/playlist/##############################
-# https://open.spotify.com/playlist/############################## 
-# https://open.spotify.com/playlist/##############################
 
 -----------------Enter data below---------------------------
 
 # user data goes here
-
+email: bryanhvi99@gmail.com
+https://open.spotify.com/playlist/6sNOXEd46T9F6Rn5nlQzfY?si=dfd70340aa244803
 
 
 

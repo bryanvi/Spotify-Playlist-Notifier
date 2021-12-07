@@ -103,7 +103,6 @@ def updateMainTable(mainTable_dict):
         c.execute("SELECT * FROM MainTable LIMIT 1")
 
         last_date = c.fetchone()[3]
-        # last_date = datetime.datetime.utcnow().isoformat()[:-7] + 'Z'
 
         c.execute("DROP TABLE MainTable")
         conn.commit()
@@ -175,7 +174,7 @@ def composeMessages(mainTable_dict, newTracks_dict):
             for user in user_list:
                 if user not in message_dict:
                     message_dict[user] = "Subject: Here's your update for this week.\n\n"
-                    message_dict[user] += "Playlists with songs added this week:\n\n\n\n"
+                    message_dict[user] += "Playlists with new songs:\n\n\n\n"
 
                 name = sp.playlist(playlist_id)['name']
                 added_message = 'NEW SONGS ADDED TO "{}":\n\n\n'.format(name)
@@ -208,7 +207,7 @@ def emailMessages(message_dict):
     '''
     port = 587  # For TLS encryption
     smtp_server = "smtp.gmail.com"
-    sender_email = admin_email  
+    sender_email = admin_email
     password = admin_email_password
 
     with smtplib.SMTP(smtp_server, port) as server:
@@ -226,12 +225,12 @@ def emailMessages(message_dict):
 
         server.close()
 
-
 def main():
-    if datetime.datetime.today().weekday() == 0:                # only updating on Sunday. PythonAnywhere script runs every day and I don't know how to schedule a task once a week :(
+    if datetime.datetime.today().weekday() == 0:
         path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "user_file.txt") # look in cache_files
 
         user_file = open(path)
+
         mainTable_dict = readFile(user_file)          # read user data from user_file.txt
 
         updateMainTable(mainTable_dict)               # update the table that holds user info
